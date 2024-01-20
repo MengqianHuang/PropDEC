@@ -187,7 +187,7 @@ class Process:
 
         return train_adata, test_adata
 
-def FindMarkers(adata_test_pre:ad.AnnData, adata_ref_pre:ad.AnnData, top_n_genes=1500)
+def FindMarkers(adata_ref_pre:ad.AnnData, adata_test_pre:ad.AnnData, top_n_genes=1500)
     adata = adata_test_pre.concatenate(adata_ref_pre, batch_key="dataset_type")
     
     # preprocess
