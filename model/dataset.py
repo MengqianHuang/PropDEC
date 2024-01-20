@@ -186,3 +186,37 @@ class Process:
         test_adata.write(f'/volume1/home/mhuang/cellTypeAbundance/data/{self.dataset_name}/{self.dataset_name}_test.h5ad')
 
         return train_adata, test_adata
+
+def FindMarkers(adata_test_pre:ad.AnnData, adata_ref_pre:ad.AnnData, top_n_genes=1500)
+    adata = adata_test_pre.concatenate(adata_ref_pre, batch_key="dataset_type")
+    
+    # preprocess
+    sc.pp.filter_cells(adata, min_genes=200)
+    sc.pp.filter_genes(adata, min_cells=3)
+    sc.pp.normalize_total(adata,target_sum=1e4)
+    sc.pp.log1p(adata)
+    sc.pp.scale(adata)
+
+    adata.var_names_make_unique()
+    adata.obs_names_make_unique()
+    
+    adata_ref = adata[adata.obs['dataset_type']=='1']
+    adata_test = adata[adata.obs['dataset_type']=='0']
+    
+    # select top_n marker genes
+    sc.tl.rank_genes_groups(adata_ref,groupby='cell.type',use_raw=False,method="wilcoxon") #method='t-test','wilcoxon'
+    sc.tl.filter_rank_genes_groups(adata_ref,groupby="cell.type",min_in_group_fraction=0.8,max_out_group_fraction=0.2) 
+
+    markers=sc.get.rank_genes_groups_df(adata_ref, group=adata_ref.obs['cell.type'].unique())
+    markers=markers.loc[~ markers.names.isna()]
+    markers['abs_score']=markers.scores.abs()
+    markers.sort_values('abs_score',ascending=False,inplace=True)
+    markers = markers.groupby('group').head(top_n_genes).sort_values('group')['names'].unique()
+    print("There exists unique marker genes: "+len(markers))
+    
+    adata_ref = adata_ref[:,markers]
+    adata_test = adata_test[:,markers]
+    adata_ref.obs.rename(columns={'cellType': 'cell.type'}, inplace=True)
+    adata_test.obs.rename(columns={'cellType': 'cell.type'}, inplace=True)
+    
+    return adata_ref, adata_test
