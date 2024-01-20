@@ -212,7 +212,7 @@ def FindMarkers(adata_ref_pre:ad.AnnData, adata_test_pre:ad.AnnData, top_n_genes
     markers['abs_score']=markers.scores.abs()
     markers.sort_values('abs_score',ascending=False,inplace=True)
     markers = markers.groupby('group').head(top_n_genes).sort_values('group')['names'].unique()
-    print("There exists unique marker genes: "+len(markers))
+    print("There exists unique marker genes: "+str(len(markers)))
     
     adata_ref = adata_ref[:,markers]
     adata_test = adata_test[:,markers]
