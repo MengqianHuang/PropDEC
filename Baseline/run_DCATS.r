@@ -26,11 +26,11 @@ ppms <- ppms %>%
 UMAPPlot(ppms, group.by = "cluster_names")
 
 # 3.composition prediction 
-## 1) get 4 clusters
+  ## 1)get 4 clusters
 ppms.new<-FindClusters(ppms,resolution = 0.13)
 UMAPPlot(ppms.new, group.by = "seurat_clusters")
 
-## 2)correct the prediction
+  ## 2)correct the prediction
 similarity_mat = knn_simMat(ppms.new@graphs$RNA_snn, ppms.new$seurat_clusters)
 count_mat = table(ppms.new$sample, ppms.new$seurat_clusters)
 count_mat_new <- count_mat
@@ -40,7 +40,7 @@ for (i in seq_len(nrow(count_mat))) {
 }
 count_mat_new
 
-## 3) evaluation
+  ## 3)evaluation
 prop_pred<-colSums(count_mat_new)/24153
 real_values <- c(0.514594, 0.250238, 0.215667, 0.019501)
 sqrt(mean((prop_pred - real_values)^2)) #等于0.1115789
