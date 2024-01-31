@@ -1,3 +1,7 @@
+library(dplyr)
+library(DCATS)
+library(Seurat)
+
 # 1. data preprocess 
 ppms_all <- Read10X(data.dir = "/Users/mhuang/code/python/abundance/data/GSE144744/RNA_counts")
 meta <- read.csv("/Users/mhuang/code/python/abundance/data/GSE144744/meta.csv",header = TRUE)
